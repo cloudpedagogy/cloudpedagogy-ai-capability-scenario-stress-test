@@ -1,7 +1,8 @@
-# AI Capability Gaps & Risk Diagnostic
+# AI Capability Scenario Stress-Test
 
-A lightweight, browser-based diagnostic tool for interpreting AI capability patterns using the CloudPedagogy AI Capability Framework.  
-It helps teams surface gaps, imbalances, and risk signals to support reflective discussion, governance conversations, and responsible scaling of AI use in education, research, and public-service contexts.
+A lightweight, browser-based exploratory tool for examining how a current AI capability profile may hold up under plausible change scenarios, using the **CloudPedagogy AI Capability Framework**.
+
+The Scenario Stress-Test helps teams surface tensions, fragilities, and pressure points that may emerge when AI use is stressed by rapid change, disruption, or increased scrutiny. It is designed to support **strategic discussion, foresight, and judgement** — not prediction or decision-making.
 
 This tool is part of the **CloudPedagogy AI Capability Tools** suite.
 
@@ -9,16 +10,16 @@ This tool is part of the **CloudPedagogy AI Capability Tools** suite.
 
 ## What this application is
 
-The **AI Capability Gaps & Risk Diagnostic** helps individuals, teams, and organisations:
+The AI Capability Scenario Stress-Test helps individuals, teams, and organisations:
 
-- interpret AI capability strengths and weaknesses across six domains
-- surface gaps, imbalances, and fragilities that may not be obvious from averages alone
-- support governance, QA, and leadership discussions
-- identify stabilising steps before scaling AI use
-- translate reflective inputs into structured discussion prompts
+- explore how existing AI capability might perform under plausible future or disruptive scenarios  
+- surface stress points where current practice may become fragile or contested  
+- examine how scenario demands interact with strengths, gaps, and imbalances across capability domains  
+- support foresight, risk-aware discussion, and strategic sense-making  
+- identify small stabilising steps before scaling or extending AI use  
 
-The tool is **capability-led**, **interpretive**, and **non-judgemental**.  
-It is designed to support professional judgement — not replace it.
+The tool is **capability-led, exploratory, and interpretive**.  
+It is explicitly designed to support **professional judgement**, not replace it.
 
 ---
 
@@ -26,104 +27,116 @@ It is designed to support professional judgement — not replace it.
 
 This tool is **not**:
 
-- a compliance audit or checklist
-- a maturity model, benchmark, or ranking system
-- a risk register or legal assessment
-- an automated decision-making or recommendation system
-- a substitute for institutional governance processes
+- a prediction engine or forecasting model  
+- a compliance audit, checklist, or benchmark  
+- a maturity model or ranking system  
+- a risk register or legal assessment  
+- a policy recommender or automated decision system  
+- a substitute for institutional governance or accountability  
 
-All outputs are **signals and prompts**, not decisions.
+All outputs are **signals, prompts, and lenses for discussion**, not decisions.
 
 ---
 
 ## The AI Capability domains
 
-The diagnostic works across six interdependent domains of AI capability:
+The Scenario Stress-Test is grounded in the six interdependent domains of the CloudPedagogy AI Capability Framework:
 
-1. **Awareness & Orientation**  
-   Shared understanding, boundaries, risks, and realistic expectations of AI in context
+### Awareness & Orientation  
+Shared understanding, boundaries, risks, and realistic expectations of AI in context
 
-2. **Human–AI Co-Agency**  
-   Role clarity, partnership practices, prompting as collaboration, and human judgement in the loop
+### Human–AI Co-Agency  
+Role clarity, partnership practices, prompting as collaboration, and human judgement in the loop
 
-3. **Applied Practice & Innovation**  
-   Practical use of AI in workflows, experimentation, iteration, and improvement of practice
+### Applied Practice & Innovation  
+Practical use of AI in workflows, experimentation, iteration, and improvement of practice
 
-4. **Ethics, Equity & Impact**  
-   Fairness, inclusion, harm reduction, transparency, and attention to downstream impacts
+### Ethics, Equity & Impact  
+Fairness, inclusion, harm reduction, transparency, and attention to downstream impacts
 
-5. **Decision-Making & Governance**  
-   Accountability, approvals, oversight, policy alignment, and decision hygiene
+### Decision-Making & Governance  
+Accountability, approvals, oversight, policy alignment, and decision hygiene
 
-6. **Reflection, Learning & Renewal**  
-   Review cycles, learning from experience, capability renewal, and institutional memory
+### Reflection, Learning & Renewal  
+Review cycles, learning from experience, capability renewal, and institutional memory
 
-These domains act as **lenses**, not checkboxes.
+These domains act as **lenses**, not checklists.
 
 ---
 
 ## How the tool works (user overview)
 
-1. Enter basic **context information** (team or organisation name, optional notes)
-2. Provide **reflective domain scores (0–4)** for each capability domain  
-   - If completing as a team, scores should be agreed through discussion
-3. Optionally select **context signals** (e.g. high-stakes use, public-facing outputs, sensitive data)
-4. Optionally provide **coverage estimates (0–100%)** to indicate structural emphasis
-5. Generate a diagnostic that produces:
-   - strength signals
-   - gap signals
-   - stabilisers already present
-   - multi-domain risk and imbalance patterns
-   - structured discussion prompts
+1. Enter basic context information (team or organisation name, optional notes)  
+2. Provide reflective **baseline capability scores (0–4)** across the six domains  
+   - If completing as a team, scores should be agreed through discussion  
+3. Select **one plausible or strategically relevant scenario**, such as:
+   - rapid AI uptake in assessment  
+   - regulatory tightening or audit scrutiny  
+   - reputational or public incident  
+   - vendor disruption or withdrawal  
+   - loss of a key AI champion  
+   - shifts toward more agentic AI workflows  
+4. Optionally select **context signals** (e.g. high-stakes use, public-facing outputs, sensitive data)  
+5. Optionally provide **coverage estimates (0–100%)** to highlight structural emphasis or neglect  
+6. Run the stress-test to generate:
+   - scenario pressure signals by domain  
+   - stress-amplified gap and imbalance signals  
+   - “why this matters” explanations  
+   - committee- and workshop-ready discussion prompts  
+   - suggested small stabilisers to consider  
 
-The diagnostic is designed to be used **collaboratively**, not mechanically.
+The tool is designed to be used **collaboratively**, not mechanically.
 
 ---
 
 ## Outputs
 
-The tool generates a structured results view including:
+The Scenario Stress-Test generates a structured results view including:
 
-- overall capability band and average score
-- domain-level profile
-- strength and gap signals
-- interpreted risk and imbalance signals
-- “why this matters” explanations
-- committee- and workshop-ready discussion prompts
+- scenario summary and framing  
+- baseline capability profile  
+- scenario pressure by domain  
+- stress-amplified risk and imbalance signals  
+- domain-specific context and explanations  
+- structured discussion prompts  
+- example stabilising actions to consider  
 
-### Export / reuse
+---
+
+## Export / reuse
 
 - **Copy summary for discussion**  
   Copy/paste outputs into:
-  - committee papers
-  - QA notes
-  - programme documentation
-  - workshop or design sprint materials
+  - committee papers  
+  - QA or governance notes  
+  - scenario planning workshop materials  
+  - programme or institutional documentation  
 
 - **Print / Save as PDF**  
-  Uses the browser’s print function for archiving or sharing
+  Uses the browser’s print function for archiving or sharing.
 
 ---
 
 ## Typical use cases
 
-- Programme and curriculum review
-- QA, validation, and periodic review discussions
-- AI governance and policy conversations
-- Leadership and steering group sense-making
-- Design workshops and reflective audits
-- Identifying fragility before scaling AI use
+- Strategic curriculum foresight and scenario planning  
+- AI governance and risk-aware leadership discussions  
+- Preparing for regulatory, audit, or reputational scrutiny  
+- Stress-testing AI use before scaling or formalisation  
+- Design sprints and futures-oriented workshops  
+- Exploring resilience under disruption or change  
 
-The tool is especially effective when used with **cross-functional teams** (educators, professional staff, leaders).
+The tool is especially effective when used with **cross-functional groups** (educators, professional staff, leaders, governance roles).
 
 ---
 
 ## Data handling and privacy
 
-- The application runs **entirely client-side**
-- No accounts, analytics, or tracking
-- No data is uploaded or transmitted
-- All inputs exist only in the user’s browser session
+- The application runs entirely client-side  
+- No accounts, analytics, or tracking  
+- No data is uploaded or transmitted  
+- All inputs exist only in the user’s browser session  
+- Clearing the browser resets the session  
 - Suitable for static hosting (e.g. AWS S3)
 
 ---
@@ -132,8 +145,8 @@ The tool is especially effective when used with **cross-functional teams** (educ
 
 ### Prerequisites
 
-- Node.js (v18+ recommended)
-- npm
+- Node.js (v18+ recommended)  
+- npm  
 
 ### Install and run
 
@@ -142,7 +155,6 @@ From the project root:
 ```bash
 npm install
 npm run dev
-
 ```
 
 ## Disclaimer

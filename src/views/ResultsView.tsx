@@ -3,8 +3,8 @@ import Card from "../components/Card";
 import DomainBars from "../components/DomainBars";
 import SignalBadge from "../components/SignalBadge";
 import type { DiagnosticInput, DomainKey } from "../domain/model";
-import type { DiagnosticResult } from "../engine/analysis";
 import { DOMAINS } from "../domain/model";
+import type { StressResult } from "../engine/stressAnalysis";
 
 const FRAMEWORK_EDITION = "CloudPedagogy AI Capability Framework (2026 Edition)";
 
@@ -16,51 +16,55 @@ function domainDescription(key: DomainKey): string {
   return DOMAINS.find((d) => d.key === key)?.description ?? "";
 }
 
-function whyThisMattersTextForSignal(relatedDomains: DomainKey[]): string {
-  const labels = relatedDomains.map(domainLabel);
-
-  if (labels.length === 0) {
-    return "This signal connects to multiple capability domains. Use it to prompt discussion about where the system is strong, fragile, or under-supported.";
-  }
-  if (labels.length === 1) {
-    return `This signal is primarily about ${labels[0]}. Weakness here can create downstream fragility even when other areas look strong.`;
-  }
-  if (labels.length === 2) {
-    return `This signal sits at the intersection of ${labels[0]} and ${labels[1]}. Tensions here often show up as “it works in practice, but it isn’t defensible” (or the reverse).`;
-  }
-  return `This signal spans several domains (${labels.slice(0, 3).join(", ")}${
-    labels.length > 3 ? "…" : ""
-  }). Multi-domain signals usually indicate a system-level pattern rather than a single fix.`;
-}
-
 function nowTimestampUTC(): string {
   const d = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
-
   return (
     `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ` +
     `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} UTC`
   );
 }
 
-function buildExportText(input: DiagnosticInput, result: DiagnosticResult, generatedAt: string): string {
+function whyThisMattersText(related: DomainKey[], scenarioTitle: string): string {
+  const labels = related.map(domainLabel);
+  if (labels.length === 0) {
+    return `This signal connects to multiple capability domains under the scenario “${scenarioTitle}”. Use it to prompt discussion about where the system is strong, fragile, or under-supported.`;
+  }
+  if (labels.length === 1) {
+    return `This signal is primarily about ${labels[0]} under the scenario “${scenarioTitle}”. Weakness here can create downstream fragility even when other areas look strong.`;
+  }
+  if (labels.length === 2) {
+    return `This signal sits at the intersection of ${labels[0]} and ${labels[1]} under the scenario “${scenarioTitle}”. Tensions here often show up as “it works in practice, but it isn’t defensible” (or the reverse).`;
+  }
+  return `This signal spans several domains (${labels.slice(0, 3).join(", ")}${labels.length > 3 ? "…" : ""}) under the scenario “${scenarioTitle}”. Multi-domain signals usually indicate a system-level pattern rather than a single fix.`;
+}
+
+function buildExportText(input: DiagnosticInput, result: StressResult, generatedAt: string): string {
   const lines: string[] = [];
 
-  lines.push("CloudPedagogy — Gaps & Risk Diagnostic");
+  lines.push("CloudPedagogy — Scenario Stress-Test");
   lines.push("-----------------------------------");
   lines.push(`Generated: ${generatedAt}`);
   lines.push(`Framework: ${FRAMEWORK_EDITION}`);
   lines.push("");
 
   lines.push(`Organisation/Team: ${input.orgName}${input.contextNotes ? ` — ${input.contextNotes}` : ""}`);
-  lines.push(`Overall band: ${result.band}`);
-  lines.push(`Average score: ${result.averageScore}/4`);
+  lines.push(`Scenario: ${result.scenario.title}`);
+  lines.push(`Overall stress profile: ${result.overallStress}`);
+  lines.push(`Baseline band: ${result.band}`);
+  lines.push(`Baseline average score: ${result.averageScore}/4`);
   lines.push("");
 
-  lines.push("Domain scores (0–4):");
+  lines.push("Baseline domain scores (0–4):");
   for (const d of DOMAINS) {
     const score = input.scores[d.key] ?? 0;
     lines.push(`- ${d.label}: ${score}/4`);
+  }
+  lines.push("");
+
+  lines.push("Scenario pressure (Low/Medium/High):");
+  for (const d of DOMAINS) {
+    lines.push(`- ${d.label}: ${result.pressure[d.key]}`);
   }
   lines.push("");
 
@@ -73,53 +77,35 @@ function buildExportText(input: DiagnosticInput, result: DiagnosticResult, gener
     lines.push("");
   }
 
-  lines.push("Strength signals:");
-  for (const s of result.summary.strengths) lines.push(`- ${s}`);
-  lines.push("");
-
-  lines.push("Gap signals:");
-  for (const g of result.summary.gaps) lines.push(`- ${g}`);
-  lines.push("");
-
-  if (result.summary.stabilisers.length > 0) {
-    lines.push("Stabilisers already present:");
-    for (const x of result.summary.stabilisers) lines.push(`- ${x}`);
-    lines.push("");
-  }
-
-  lines.push("Gaps & risk signals (for discussion):");
+  lines.push("Stress signals (for discussion):");
   result.signals.forEach((sig, idx) => {
     lines.push("");
     lines.push(`${idx + 1}. [${sig.level}] ${sig.title}`);
     lines.push(`   Rationale: ${sig.rationale}`);
-    if (sig.relatedDomains?.length) {
-      lines.push(`   Related domains: ${sig.relatedDomains.map(domainLabel).join("; ")}`);
-    }
+    if (sig.relatedDomains?.length) lines.push(`   Related domains: ${sig.relatedDomains.map(domainLabel).join("; ")}`);
     lines.push("   Discussion prompts:");
     sig.prompts.forEach((p) => lines.push(`   - ${p}`));
+    if (sig.stabilisers?.length) {
+      lines.push("   Small stabilisers to consider:");
+      sig.stabilisers.forEach((s) => lines.push(`   - ${s}`));
+    }
   });
 
   lines.push("");
-  lines.push(
-    "Note: This output is reflective and interpretive. It is not a compliance audit, risk register, or automated decision system."
-  );
+  lines.push("Note: This output is reflective and exploratory. It is not a prediction, compliance audit, risk register, or automated decision system.");
 
   return lines.join("\n");
 }
 
 export default function ResultsView(props: {
   input: DiagnosticInput;
-  result: DiagnosticResult;
+  result: StressResult;
   onBack: () => void;
 }) {
   const { input, result } = props;
 
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">("idle");
-
-  // Auto-open “Why this matters” for Concern signals only
   const [openWhy, setOpenWhy] = useState<Record<string, boolean>>({});
-
-  // Freeze a generated-at timestamp for this render (so copy/export is consistent)
   const [generatedAt] = useState<string>(() => nowTimestampUTC());
 
   useEffect(() => {
@@ -130,10 +116,7 @@ export default function ResultsView(props: {
     setOpenWhy(initial);
   }, [result]);
 
-  const exportText = useMemo(
-    () => buildExportText(input, result, generatedAt),
-    [input, result, generatedAt]
-  );
+  const exportText = useMemo(() => buildExportText(input, result, generatedAt), [input, result, generatedAt]);
 
   async function copyToClipboard() {
     try {
@@ -141,7 +124,6 @@ export default function ResultsView(props: {
       setCopyStatus("copied");
       window.setTimeout(() => setCopyStatus("idle"), 1600);
     } catch {
-      // Fallback for older/locked-down browsers
       try {
         const ta = document.createElement("textarea");
         ta.value = exportText;
@@ -169,10 +151,10 @@ export default function ResultsView(props: {
   return (
     <div className="stack">
       <Card
-        title="Summary"
+        title="Scenario Stress-Test Summary"
         right={
           <span className="pill">
-            {result.band} · Avg {result.averageScore}/4
+            {result.overallStress} stress · {result.band} · Avg {result.averageScore}/4
           </span>
         }
       >
@@ -185,46 +167,38 @@ export default function ResultsView(props: {
             </>
           ) : null}
         </p>
-        <p className="muted" style={{ marginTop: 8 }}>
-          Generated: {generatedAt} · {FRAMEWORK_EDITION}
-        </p>
 
-        <div className="split">
-          <div>
-            <div className="kicker">Strength signals</div>
-            <ul>
-              {result.summary.strengths.map((s) => (
-                <li key={s}>{s}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <div className="kicker">Gap signals</div>
-            <ul>
-              {result.summary.gaps.map((g) => (
-                <li key={g}>{g}</li>
-              ))}
-            </ul>
+        <div style={{ marginTop: 10 }}>
+          <div className="kicker">Scenario</div>
+          <div style={{ fontWeight: 700 }}>{result.scenario.title}</div>
+          <div className="muted" style={{ marginTop: 4, lineHeight: 1.45 }}>
+            {result.scenario.description}
           </div>
         </div>
 
-        {result.summary.stabilisers.length > 0 && (
-          <>
-            <div className="kicker">Stabilisers already present</div>
-            <ul>
-              {result.summary.stabilisers.map((x) => (
-                <li key={x}>{x}</li>
-              ))}
-            </ul>
-          </>
-        )}
+        <p className="muted" style={{ marginTop: 10 }}>
+          Generated: {generatedAt} · {FRAMEWORK_EDITION}
+        </p>
       </Card>
 
-      <Card title="Domain profile">
+      <Card title="Baseline domain profile">
         <DomainBars scores={input.scores} />
       </Card>
 
-      <Card title="Gaps & risk signals">
+      <Card title="Scenario pressure by domain">
+        <p className="muted" style={{ marginTop: 0 }}>
+          Pressure reflects scenario demands — it does not change your baseline scores.
+        </p>
+        <ul>
+          {DOMAINS.map((d) => (
+            <li key={d.key}>
+              <strong>{d.label}:</strong> <span className="muted">{result.pressure[d.key]}</span>
+            </li>
+          ))}
+        </ul>
+      </Card>
+
+      <Card title="Stress signals">
         <div className="signals">
           {result.signals.map((s) => {
             const isOpen = !!openWhy[s.id];
@@ -259,7 +233,7 @@ export default function ResultsView(props: {
 
                 {isOpen && (
                   <div className="whyPanel">
-                    <div className="whyPanel__lead">{whyThisMattersTextForSignal(related)}</div>
+                    <div className="whyPanel__lead">{whyThisMattersText(related, result.scenario.title)}</div>
 
                     {related.length > 0 && (
                       <>
@@ -276,14 +250,13 @@ export default function ResultsView(props: {
                         <div className="kicker">How to use this in a committee or workshop</div>
                         <ul className="whyList">
                           <li>
-                            Ask: <strong>“Where does this show up in our current workflow?”</strong>
+                            Ask: <strong>“Where would this show up first under this scenario?”</strong>
                           </li>
                           <li>
-                            Ask: <strong>“Who carries responsibility here — and is that explicit?”</strong>
+                            Ask: <strong>“What would break or become contested?”</strong>
                           </li>
                           <li>
-                            Agree one: <strong>evidence to collect</strong> or <strong>small stabilising step</strong>{" "}
-                            before scaling use.
+                            Agree one: <strong>evidence to collect</strong> or a <strong>small stabiliser</strong> before scaling.
                           </li>
                         </ul>
                       </>
@@ -297,6 +270,17 @@ export default function ResultsView(props: {
                     <li key={p}>{p}</li>
                   ))}
                 </ul>
+
+                {s.stabilisers?.length > 0 && (
+                  <>
+                    <div className="kicker">Small stabilisers to consider</div>
+                    <ul>
+                      {s.stabilisers.map((x) => (
+                        <li key={x}>{x}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
               </div>
             );
           })}
@@ -305,8 +289,8 @@ export default function ResultsView(props: {
 
       <Card title="Export / use">
         <p className="muted">
-          Tip: copy/paste the summary and signals into committee papers, QA notes, workshop minutes, or programme
-          documentation. The value is in the discussion you run next.
+          Tip: copy/paste the scenario summary and signals into committee papers, QA notes, workshop minutes, or programme documentation.
+          The value is in the discussion you run next.
         </p>
 
         <div className="actions actions--between">
@@ -315,16 +299,17 @@ export default function ResultsView(props: {
           </button>
 
           <div className="actions">
-            <button className="btn btn--primary" onClick={copyToClipboard}>
-              {copyStatus === "copied"
-                ? "Copied ✓"
-                : copyStatus === "error"
-                ? "Copy failed"
-                : "Copy summary for discussion"}
+            <button className="btn" onClick={copyToClipboard}>
+              {copyStatus === "copied" ? "Copied ✓" : copyStatus === "error" ? "Copy failed" : "Copy summary for discussion"}
+            </button>
+            <button className="btn btn--primary" onClick={() => window.print()}>
+              Print / Save as PDF
             </button>
           </div>
         </div>
       </Card>
+
+ 
     </div>
   );
 }

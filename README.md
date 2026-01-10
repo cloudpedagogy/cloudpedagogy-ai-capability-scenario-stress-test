@@ -192,18 +192,16 @@ Responsibility for interpretation and any subsequent use remains with the **user
 
 ---
 
-## Licensing
+## Licensing & Scope
 
-This repository is licensed under the  
-**Creative Commons Attribution–NonCommercial–ShareAlike 4.0 International (CC BY-NC-SA 4.0)** licence.
+This repository contains open-source software released under the MIT License.
 
-You may:
+CloudPedagogy frameworks, capability models, taxonomies, and training materials
+are separate intellectual works and are licensed independently (typically under
+Creative Commons Attribution–NonCommercial–ShareAlike 4.0).
 
-- Use, share, and adapt the tool for **educational, research, and public-interest purposes**
-- Do so with **appropriate attribution**
-- Share adaptations under the **same licence**
-
-Commercial use, resale, or incorporation into **paid products or services** is **not permitted** without explicit permission.
+This software is designed to support capability-aligned workflows but does not
+embed or enforce any specific CloudPedagogy framework.
 
 ---
 

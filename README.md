@@ -6,6 +6,10 @@ The Scenario Stress-Test helps teams surface tensions, fragilities, and pressure
 
 This tool is part of the **CloudPedagogy AI Capability Tools** suite.
 
+---
+## 🌐 Live Application
+
+👉 http://cloudpedagogy-ai-capability-scenario-stress-test.s3-website.eu-west-2.amazonaws.com/
 
 ---
 ## 🛠️ Getting Started

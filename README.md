@@ -203,6 +203,8 @@ These tools are provided **as-is** and are not production systems, audits, or co
 
 All applications are designed to run locally in the browser. No user data is collected, stored, or transmitted.
 
+All example data and structures are synthetic and do not represent any real institution, programme, or curriculum.
+
 ---
 
 ## Licensing & Scope

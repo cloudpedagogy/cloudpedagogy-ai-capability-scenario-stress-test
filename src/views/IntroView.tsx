@@ -2,7 +2,11 @@ import Card from "../components/Card";
 
 export default function IntroView(props: { onStart: () => void }) {
   return (
-    <div className="stack">
+    <div className="stack stack--large">
+      <header>
+        <h1>Scenario Stress-Test</h1>
+      </header>
+
       <Card title="What this tool does">
         <p>
           The <strong>Scenario Stress-Test</strong> helps teams explore how a current AI capability profile may

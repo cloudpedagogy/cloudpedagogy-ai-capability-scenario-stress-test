@@ -150,55 +150,57 @@ export default function ResultsView(props: {
 
   return (
     <div className="stack">
-      <Card
-        title="Scenario Stress-Test Summary"
-        right={
-          <span className="pill">
+      <header>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div>
+            <h1>Stress-Test Results</h1>
+            <p className="secondary" style={{ marginTop: "4px" }}>
+              <strong>{input.orgName}</strong>
+              {input.contextNotes ? ` — ${input.contextNotes}` : ""}
+            </p>
+          </div>
+          <div className="pill">
             {result.overallStress} stress · {result.band} · Avg {result.averageScore}/4
-          </span>
-        }
-      >
-        <p>
-          <strong>{input.orgName}</strong>
-          {input.contextNotes ? (
-            <>
-              {" "}
-              — <span className="muted">{input.contextNotes}</span>
-            </>
-          ) : null}
-        </p>
+          </div>
+        </div>
+      </header>
 
-        <div style={{ marginTop: 10 }}>
-          <div className="kicker">Scenario</div>
-          <div style={{ fontWeight: 700 }}>{result.scenario.title}</div>
-          <div className="muted" style={{ marginTop: 4, lineHeight: 1.45 }}>
+      <Card
+        title="Scenario Analysis"
+        right={<span className="muted" style={{ fontSize: "0.8rem" }}>{generatedAt}</span>}
+      >
+        <div style={{ paddingBottom: "8px" }}>
+          <div className="kicker">Active Scenario</div>
+          <div style={{ fontWeight: 600, fontSize: "1.1rem", marginBottom: "8px" }}>{result.scenario.title}</div>
+          <div className="secondary" style={{ lineHeight: 1.6, fontSize: "0.95rem" }}>
             {result.scenario.description}
           </div>
         </div>
-
-        <p className="muted" style={{ marginTop: 10 }}>
-          Generated: {generatedAt} · {FRAMEWORK_EDITION}
-        </p>
+        
+        <div className="muted" style={{ marginTop: "16px", fontSize: "0.85rem", borderTop: "1px solid var(--line)", paddingTop: "16px" }}>
+          Framework: {FRAMEWORK_EDITION}
+        </div>
       </Card>
 
-      <Card title="Baseline domain profile">
+      <Card title="Baseline capability profile">
         <DomainBars scores={input.scores} />
       </Card>
 
       <Card title="Scenario pressure by domain">
-        <p className="muted" style={{ marginTop: 0 }}>
+        <p className="muted">
           Pressure reflects scenario demands — it does not change your baseline scores.
         </p>
-        <ul>
+        <div className="domainTable" style={{ gridTemplateColumns: "1fr", gap: "8px" }}>
           {DOMAINS.map((d) => (
-            <li key={d.key}>
-              <strong>{d.label}:</strong> <span className="muted">{result.pressure[d.key]}</span>
-            </li>
+            <div key={d.key} style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #f0f0f0", padding: "8px 0" }}>
+              <span className="secondary" style={{ fontWeight: 500 }}>{d.label}</span>
+              <span className="muted">{result.pressure[d.key]}</span>
+            </div>
           ))}
-        </ul>
+        </div>
       </Card>
 
-      <Card title="Stress signals">
+      <Card title="Stress signals (for discussion)">
         <div className="signals">
           {result.signals.map((s) => {
             const isOpen = !!openWhy[s.id];
@@ -227,7 +229,7 @@ export default function ResultsView(props: {
                   )}
 
                   <button className="btn btn--small" onClick={() => toggleWhy(s.id)}>
-                    {isOpen ? "Hide why this matters" : "Why this matters"}
+                    {isOpen ? "Hide rationale" : "Why this matters"}
                   </button>
                 </div>
 
@@ -242,12 +244,12 @@ export default function ResultsView(props: {
                           {related.map((dk) => (
                             <li key={dk}>
                               <strong>{domainLabel(dk)}:</strong>{" "}
-                              <span className="muted">{domainDescription(dk)}</span>
+                              <span className="secondary">{domainDescription(dk)}</span>
                             </li>
                           ))}
                         </ul>
 
-                        <div className="kicker">How to use this in a committee or workshop</div>
+                        <div className="kicker">Guided discussion</div>
                         <ul className="whyList">
                           <li>
                             Ask: <strong>“Where would this show up first under this scenario?”</strong>
@@ -265,7 +267,7 @@ export default function ResultsView(props: {
                 )}
 
                 <div className="kicker">Discussion prompts</div>
-                <ul>
+                <ul className="whyList" style={{ paddingLeft: "16px" }}>
                   {s.prompts.map((p) => (
                     <li key={p}>{p}</li>
                   ))}
@@ -274,7 +276,7 @@ export default function ResultsView(props: {
                 {s.stabilisers?.length > 0 && (
                   <>
                     <div className="kicker">Small stabilisers to consider</div>
-                    <ul>
+                    <ul className="whyList" style={{ paddingLeft: "16px" }}>
                       {s.stabilisers.map((x) => (
                         <li key={x}>{x}</li>
                       ))}
@@ -290,26 +292,23 @@ export default function ResultsView(props: {
       <Card title="Export / use">
         <p className="muted">
           Tip: copy/paste the scenario summary and signals into committee papers, QA notes, workshop minutes, or programme documentation.
-          The value is in the discussion you run next.
         </p>
 
-        <div className="actions actions--between">
+        <div className="actions actions--between" style={{ marginTop: "24px" }}>
           <button className="btn" onClick={props.onBack}>
-            Back
+            Back to setup
           </button>
 
           <div className="actions">
             <button className="btn" onClick={copyToClipboard}>
-              {copyStatus === "copied" ? "Copied ✓" : copyStatus === "error" ? "Copy failed" : "Copy summary for discussion"}
+              {copyStatus === "copied" ? "Copied ✓" : copyStatus === "error" ? "Copy failed" : "Copy summary"}
             </button>
             <button className="btn btn--primary" onClick={() => window.print()}>
-              Print / Save as PDF
+              Print report
             </button>
           </div>
         </div>
       </Card>
-
- 
     </div>
   );
 }

@@ -91,6 +91,11 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
 
   return (
     <div className="stack">
+      <header>
+        <h1>Stress-Test Setup</h1>
+        <p className="secondary" style={{ marginTop: "4px" }}>Provide baseline capability scores and select a scenario to analyze fragility.</p>
+      </header>
+
       <Card title="Context">
         <div className="grid2">
           <div className="field">
@@ -109,10 +114,10 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
       </Card>
 
       <Card title="Baseline capability profile (0–4)">
-        <p className="muted" style={{ marginTop: 0 }}>
+        <p className="muted">
           These are reflective estimates. Use them to support discussion — not to “get the right number”.
         </p>
-        <p className="muted" style={{ marginTop: 8 }}>
+        <p className="muted">
           If completing this as a team, agree scores through discussion rather than averaging individual views.
         </p>
 
@@ -140,29 +145,28 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
         </div>
       </Card>
 
-      <Card title="Scenario selection (choose one plausible or strategically relevant scenario)">
+      <Card title="Scenario selection">
         <div className="checks">
           {SCENARIOS.map((s) => {
             const active = s.id === scenarioId;
             return (
-              <label key={s.id} className="check" style={{ alignItems: "flex-start" }}>
+              <label key={s.id} className="check">
                 <input
                   type="radio"
                   name="scenario"
                   checked={active}
                   onChange={() => setScenarioId(s.id)}
-                  style={{ marginTop: 4 }}
                 />
                 <div>
-                  <div style={{ fontWeight: 700 }}>{s.title}</div>
-                  <div className="muted" style={{ lineHeight: 1.45, marginTop: 4 }}>
+                  <div className="card__title" style={{ fontSize: "1.1rem" }}>{s.title}</div>
+                  <div className="secondary" style={{ marginTop: "6px", fontSize: "0.95rem" }}>
                     {s.description}
                   </div>
-                  <div className="muted" style={{ marginTop: 6 }}>
-                    <strong>Key stressors:</strong>
-                    <ul style={{ marginTop: 6 }}>
+                  <div className="muted" style={{ marginTop: "12px", fontSize: "0.85rem" }}>
+                    <strong style={{ color: "#111" }}>Key stressors:</strong>
+                    <ul style={{ marginTop: "6px" }}>
                       {s.stressors.map((x) => (
-                        <li key={x}>{x}</li>
+                        <li key={x} style={{ fontSize: "0.85rem" }}>{x}</li>
                       ))}
                     </ul>
                   </div>
@@ -174,7 +178,7 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
       </Card>
 
       <Card title="Context signals (optional)">
-        <p className="muted" style={{ marginTop: 0 }}>
+        <p className="muted">
           Used to tune stress signals — still reflective.
         </p>
 
@@ -185,7 +189,7 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
               checked={signals.highStakesUse}
               onChange={() => toggleSignal("highStakesUse")}
             />
-            <div>High-stakes use (assessment, consequential decisions, clinical, admissions, etc.)</div>
+            <div className="secondary">High-stakes use (assessment, consequential decisions, clinical, admissions, etc.)</div>
           </label>
 
           <label className="check">
@@ -194,7 +198,7 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
               checked={signals.publicFacing}
               onChange={() => toggleSignal("publicFacing")}
             />
-            <div>Public-facing outputs (published externally or used with external stakeholders)</div>
+            <div className="secondary">Public-facing outputs (published externally or used with external stakeholders)</div>
           </label>
 
           <label className="check">
@@ -203,7 +207,7 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
               checked={signals.sensitiveData}
               onChange={() => toggleSignal("sensitiveData")}
             />
-            <div>Sensitive / confidential data involved</div>
+            <div className="secondary">Sensitive / confidential data involved</div>
           </label>
 
           <label className="check">
@@ -212,7 +216,7 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
               checked={signals.vendorReliance}
               onChange={() => toggleSignal("vendorReliance")}
             />
-            <div>Heavy reliance on a single vendor/toolchain</div>
+            <div className="secondary">Heavy reliance on a single vendor/toolchain</div>
           </label>
 
           <label className="check">
@@ -221,23 +225,23 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
               checked={signals.unclearOwnership}
               onChange={() => toggleSignal("unclearOwnership")}
             />
-            <div>Unclear ownership/accountability for AI-supported work</div>
+            <div className="secondary">Unclear ownership/accountability for AI-supported work</div>
           </label>
         </div>
       </Card>
 
       <Card title="Programme coverage estimates (optional)">
-        <p className="muted" style={{ marginTop: 0 }}>
+        <p className="muted">
           Include rough coverage estimates (0–100%) to detect structural imbalance under stress.
         </p>
 
-        <label className="check" style={{ marginTop: 8 }}>
+        <label className="check" style={{ marginTop: "12px" }}>
           <input
             type="checkbox"
             checked={coverageEnabled}
             onChange={() => setCoverageEnabled((v) => !v)}
           />
-          <div>Enable coverage estimates</div>
+          <div className="secondary" style={{ fontWeight: 500 }}>Enable coverage estimates</div>
         </label>
 
         {coverageEnabled && (
@@ -249,7 +253,7 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
                   <div>
                     <div className="domainRow__label">{d.label}</div>
                     <div className="domainRow__desc">
-                      Approximate proportion of attention/learning/practice in this domain.
+                      Approximate proportion of attention/practice in this domain.
                     </div>
                   </div>
                   <div className="domainRow__right">
@@ -259,9 +263,9 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
                       max={100}
                       value={v}
                       onChange={(e) => setCoverageValue(d.key, Number(e.target.value))}
-                      style={{ width: 110 }}
+                      style={{ width: "90px" }}
                     />
-                    <span className="muted">%</span>
+                    <span className="muted" style={{ marginLeft: "8px" }}>%</span>
                   </div>
                 </div>
               );

@@ -11,7 +11,9 @@ export default function App() {
     <div className="app">
       <header className="header">
         <div className="brand">
-          <div className="brand__title">CloudPedagogy</div>
+          <a href="https://www.cloudpedagogy.com/" target="_blank" rel="noopener noreferrer" className="brand__title">
+            CloudPedagogy
+          </a>
           <div className="brand__subtitle">Scenario Stress-Test</div>
         </div>
         <nav className="nav">
@@ -29,7 +31,11 @@ export default function App() {
         )}
       </main>
 
-    
+      <footer className="footer">
+        <div className="fineprint">
+          CloudPedagogy &middot; Governance-ready AI and curriculum systems
+        </div>
+      </footer>
     </div>
   );
 }

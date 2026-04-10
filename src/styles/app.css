@@ -4,7 +4,7 @@
   --panel2: #f9fafb;
   --text: #111111;
   --secondary: #444444;
-  --muted: #666666;
+  --muted: #555555;
   --line: #e5e7eb;
   --btn: #ffffff;
   --btn-hover: #f3f4f6;
@@ -13,6 +13,22 @@
   --radius: 6px;
   --shadow: none;
   --max: 1200px;
+
+  /* Design Tokens */
+  --color-text-primary: #111111;
+  --color-text-secondary: #555555;
+
+  --color-border-default: #e0e0e0;
+  --color-border-strong: #000000;
+
+  --font-size-body: 14px;
+  --font-size-meta: 13px;
+  --font-size-small: 12px;
+
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -26,7 +42,16 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 }
 
-a { color: inherit; text-decoration: none; }
+:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.2);
+  outline-offset: 2px;
+}
+
+a { 
+  color: inherit; 
+  text-decoration: underline; 
+  text-underline-offset: 2px; 
+}
 button, input, select { font: inherit; }
 
 .app { min-height: 100%; display: flex; flex-direction: column; }
@@ -83,7 +108,7 @@ button, input, select { font: inherit; }
   margin-top: 16px; 
   margin-bottom: 8px; 
   color: var(--muted); 
-  font-size: 0.75rem; 
+  font-size: var(--font-size-meta); 
   text-transform: uppercase; 
   letter-spacing: 0.05em;
   font-weight: 600;
@@ -134,7 +159,6 @@ input, select {
   width: 100%;
 }
 input:focus, select:focus {
-  outline: none;
   border-color: var(--text);
 }
 input::placeholder { color: var(--muted); }
@@ -228,7 +252,7 @@ input::placeholder { color: var(--muted); }
   border: 1px solid var(--line);
   background: var(--panel2);
   color: var(--secondary);
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
   font-weight: 500;
 }
 
@@ -260,7 +284,7 @@ input::placeholder { color: var(--muted); }
   display: inline-flex;
   padding: 4px 10px;
   border-radius: 4px;
-  font-size: 0.75rem;
+  font-size: var(--font-size-meta);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;

@@ -167,7 +167,7 @@ export default function ResultsView(props: {
 
       <Card
         title="Scenario Analysis"
-        right={<span className="muted" style={{ fontSize: "0.8rem" }}>{generatedAt}</span>}
+        right={<span className="muted" style={{ fontSize: "var(--font-size-meta)" }}>{generatedAt}</span>}
       >
         <div style={{ paddingBottom: "8px" }}>
           <div className="kicker">Active Scenario</div>

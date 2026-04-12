@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import Card from "../components/Card";
 import type { DiagnosticInput, DomainKey } from "../domain/model";
 import { DOMAINS } from "../domain/model";
@@ -18,6 +18,7 @@ const SCALE_LABELS: Record<number, string> = {
 
 export default function DiagnosticView(props: { onRestart: () => void }) {
   const [stage, setStage] = useState<Stage>("input");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [orgName, setOrgName] = useState<string>("My team / organisation");
   const [contextNotes, setContextNotes] = useState<string>("");
@@ -85,15 +86,63 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const json = JSON.parse(event.target?.result as string);
+        if (json.metadata?.organisation) setOrgName(json.metadata.organisation);
+        if (json.metadata?.context) setContextNotes(json.metadata.context);
+        if (json.capabilities?.scores) {
+          const newScores = { ...scores };
+          Object.keys(json.capabilities.scores).forEach((k) => {
+            if (k in newScores) newScores[k as DomainKey] = json.capabilities.scores[k];
+          });
+          setScores(newScores);
+        }
+        if (json.context_flags) {
+          setSignals({
+            highStakesUse: !!json.context_flags.high_stakes_use,
+            publicFacing: !!json.context_flags.public_facing,
+            sensitiveData: !!json.context_flags.sensitive_data,
+            vendorReliance: !!json.context_flags.vendor_reliance,
+            unclearOwnership: !!json.context_flags.unclear_ownership,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to parse JSON file:", err);
+        alert("Failed to load JSON file.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
   if (stage === "results" && result) {
     return <ResultsView input={buildInput()} result={result} onBack={() => setStage("input")} />;
   }
 
   return (
     <div className="stack">
-      <header>
-        <h1>Stress-Test Setup</h1>
-        <p className="secondary" style={{ marginTop: "4px" }}>Provide baseline capability scores and select a scenario to analyze fragility.</p>
+      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <h1>Stress-Test Setup</h1>
+          <p className="secondary" style={{ marginTop: "4px" }}>Provide baseline capability scores and select a scenario to analyze fragility.</p>
+        </div>
+        <div>
+          <input
+            type="file"
+            accept=".json"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            style={{ display: "none" }}
+          />
+          <button className="btn" onClick={() => fileInputRef.current?.click()}>
+            Load from Diagnostic JSON
+          </button>
+        </div>
       </header>
 
       <Card title="Context">

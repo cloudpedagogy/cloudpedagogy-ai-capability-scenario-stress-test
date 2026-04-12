@@ -5,6 +5,7 @@ import SignalBadge from "../components/SignalBadge";
 import type { DiagnosticInput, DomainKey } from "../domain/model";
 import { DOMAINS } from "../domain/model";
 import type { StressResult } from "../engine/stressAnalysis";
+import { downloadReport } from "../engine/export";
 
 const FRAMEWORK_EDITION = "CloudPedagogy AI Capability Framework (2026 Edition)";
 
@@ -159,44 +160,109 @@ export default function ResultsView(props: {
               {input.contextNotes ? ` — ${input.contextNotes}` : ""}
             </p>
           </div>
-          <div className="pill">
-            {result.overallStress} stress · {result.band} · Avg {result.averageScore}/4
+          <div style={{ textAlign: "right" }}>
+            <div className="pill" style={{ marginBottom: "8px" }}>
+              {result.overallStress} stress · {result.band} · Avg {result.averageScore}/4
+            </div>
+            <div style={{ fontSize: "0.85rem", color: "var(--muted)" }}>{generatedAt}</div>
           </div>
         </div>
       </header>
 
-      <Card
-        title="Scenario Analysis"
-        right={<span className="muted" style={{ fontSize: "var(--font-size-meta)" }}>{generatedAt}</span>}
-      >
-        <div style={{ paddingBottom: "8px" }}>
-          <div className="kicker">Active Scenario</div>
-          <div style={{ fontWeight: 600, fontSize: "1.1rem", marginBottom: "8px" }}>{result.scenario.title}</div>
-          <div className="secondary" style={{ lineHeight: 1.6, fontSize: "0.95rem" }}>
-            {result.scenario.description}
+      {/* Resilience Score & Scenario Intro */}
+      <div className="grid2" style={{ gridTemplateColumns: "1fr 340px" }}>
+        <Card title="Scenario Analysis">
+          <div style={{ paddingBottom: "8px" }}>
+            <div className="kicker">Active Scenario</div>
+            <div style={{ fontWeight: 600, fontSize: "1.1rem", marginBottom: "8px" }}>{result.scenario.title}</div>
+            <div className="secondary" style={{ lineHeight: 1.6, fontSize: "0.95rem" }}>
+              {result.scenario.description}
+            </div>
           </div>
-        </div>
-        
-        <div className="muted" style={{ marginTop: "16px", fontSize: "0.85rem", borderTop: "1px solid var(--line)", paddingTop: "16px" }}>
-          Framework: {FRAMEWORK_EDITION}
-        </div>
-      </Card>
+          <div className="muted" style={{ marginTop: "16px", fontSize: "0.85rem", borderTop: "1px solid var(--line)", paddingTop: "16px" }}>
+            Note: Results are scenario-based simulations, not predictive audit or compliance outputs.
+          </div>
+        </Card>
+
+        {(() => {
+          const resilienceLabel = result.resilienceScore >= 80 ? "Robust" : result.resilienceScore >= 60 ? "Stable" : result.resilienceScore >= 40 ? "Stressed" : "Critical";
+          const resilienceColor = result.resilienceScore >= 60 ? "#111" : result.resilienceScore >= 40 ? "#d97706" : "#dc2626";
+          return (
+            <div style={{ borderLeft: `4px solid ${resilienceColor}` }}>
+              <Card title="Scenario Resilience Index">
+                <div style={{ textAlign: "center", padding: "12px 0" }}>
+                  <div style={{ fontSize: "3rem", fontWeight: 800, color: resilienceColor, lineHeight: 1 }}>{result.resilienceScore}</div>
+                  <div style={{ fontSize: "1.2rem", fontWeight: 600, marginTop: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }}>{resilienceLabel}</div>
+                  <p className="muted" style={{ marginTop: "12px", fontSize: "0.85rem" }}>
+                    Institutional stability indicator under this specific scenario.
+                  </p>
+                </div>
+              </Card>
+            </div>
+          );
+        })()}
+      </div>
 
       <Card title="Baseline capability profile">
         <DomainBars scores={input.scores} />
       </Card>
 
-      <Card title="Scenario pressure by domain">
-        <p className="muted">
-          Pressure reflects scenario demands — it does not change your baseline scores.
+      <Card title="Domain Impact Matrix">
+        <p className="muted" style={{ marginBottom: "20px" }}>
+          Primary analytical view showing how capability holds up under pressure.
         </p>
-        <div className="domainTable" style={{ gridTemplateColumns: "1fr", gap: "8px" }}>
-          {DOMAINS.map((d) => (
-            <div key={d.key} style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #f0f0f0", padding: "8px 0" }}>
-              <span className="secondary" style={{ fontWeight: 500 }}>{d.label}</span>
-              <span className="muted">{result.pressure[d.key]}</span>
-            </div>
-          ))}
+        <div className="impactScroll" style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}>
+            <thead>
+              <tr style={{ borderBottom: "2px solid var(--line)", textAlign: "left" }}>
+                <th style={{ padding: "12px 8px", fontWeight: 600 }}>Domain</th>
+                <th style={{ padding: "12px 8px", fontWeight: 600 }}>Baseline</th>
+                <th style={{ padding: "12px 8px", fontWeight: 600 }}>Pressure</th>
+                <th style={{ padding: "12px 8px", fontWeight: 600 }}>Stability</th>
+                <th style={{ padding: "12px 8px", fontWeight: 600 }}>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {result.domainImpacts.map((d) => (
+                <tr key={d.key} style={{ borderBottom: "1px solid #f0f0f0", background: d.isFragile ? "#fff5f5" : "transparent" }}>
+                  <td style={{ padding: "16px 8px" }}>
+                    <div style={{ fontWeight: 600 }}>{d.label}</div>
+                    <div className="muted" style={{ fontSize: "11px" }}>{domainDescription(d.key)}</div>
+                  </td>
+                  <td style={{ padding: "16px 8px" }}>{d.baseline}/4</td>
+                  <td style={{ padding: "16px 8px" }}>
+                    <span className={`badge badge--${d.pressure.toLowerCase()}`} style={{ fontSize: "10px" }}>{d.pressure}</span>
+                  </td>
+                  <td style={{ padding: "16px 8px" }}>
+                    {d.residualStability.toFixed(1)}
+                    {(() => {
+                      const drop = d.baseline - d.residualStability;
+                      let impact = "Low Impact";
+                      let color = "#10b981";
+                      if (drop > 1.0) { impact = "High Impact"; color = "#ef4444"; }
+                      else if (drop >= 0.5) { impact = "Moderate Impact"; color = "#f59e0b"; }
+                      
+                      return (
+                        <div style={{ fontSize: "9px", fontWeight: 700, color: color, textTransform: "uppercase", marginTop: "4px" }}>
+                          {impact}
+                        </div>
+                      );
+                    })()}
+                  </td>
+                  <td style={{ padding: "16px 8px" }}>
+                    <span style={{ 
+                      fontWeight: 700, 
+                      fontSize: "10px", 
+                      textTransform: "uppercase",
+                      color: d.status === "Fragile" ? "#dc2626" : d.status === "Stressed" ? "#d97706" : "#4b5563"
+                    }}>
+                      {d.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </Card>
 
@@ -289,9 +355,9 @@ export default function ResultsView(props: {
         </div>
       </Card>
 
-      <Card title="Export / use">
+      <Card title="Export / Report Generation">
         <p className="muted">
-          Tip: copy/paste the scenario summary and signals into committee papers, QA notes, workshop minutes, or programme documentation.
+          Generate governance-ready reports for committee review, institutional QA, or programme documentation.
         </p>
 
         <div className="actions actions--between" style={{ marginTop: "24px" }}>
@@ -301,10 +367,16 @@ export default function ResultsView(props: {
 
           <div className="actions">
             <button className="btn" onClick={copyToClipboard}>
-              {copyStatus === "copied" ? "Copied ✓" : copyStatus === "error" ? "Copy failed" : "Copy summary"}
+              {copyStatus === "copied" ? "Copied!" : copyStatus === "error" ? "Error" : "Copy to Clipboard"}
+            </button>
+            <button className="btn" onClick={() => downloadReport(input, result, "json")}>
+              Download JSON
+            </button>
+            <button className="btn" onClick={() => downloadReport(input, result, "markdown")}>
+              Download Markdown Report
             </button>
             <button className="btn btn--primary" onClick={() => window.print()}>
-              Print report
+              Print PDF
             </button>
           </div>
         </div>

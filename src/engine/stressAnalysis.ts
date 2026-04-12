@@ -15,10 +15,24 @@ export type StressSignal = {
   stabilisers: string[];
 };
 
+export type ImpactStatus = "Stable" | "Stressed" | "Fragile";
+
+export type DomainImpact = {
+  key: DomainKey;
+  label: string;
+  baseline: number;
+  pressure: PressureLevel;
+  residualStability: number; // 0-4 scale
+  status: ImpactStatus;
+  isFragile: boolean;
+};
+
 export type StressResult = {
   scenario: Scenario;
   pressure: Record<DomainKey, PressureLevel>;
   overallStress: "Low" | "Moderate" | "High";
+  resilienceScore: number; // 0-100
+  domainImpacts: DomainImpact[];
   summary: {
     strengths: string[];
     vulnerabilities: string[];
@@ -81,11 +95,38 @@ export function runStressTest(input: DiagnosticInput, scenario: Scenario): Stres
   const vulnerabilities: string[] = [];
   const stabilisers: string[] = [];
 
-  for (const d of DOMAINS) {
-    const score = input.scores[d.key] ?? 0;
-    if (score >= 3) strengths.push(`${d.label} (score ${score}/4)`);
-    if (score <= 1) vulnerabilities.push(`${d.label} (score ${score}/4)`);
-  }
+  // Calculate Linear Domain Impacts
+  const domainImpacts = DOMAINS.map((d) => {
+    const baseline = input.scores[d.key] ?? 0;
+    const press = pressure[d.key];
+    
+    // Linear pressure weights: High = 1.0, Medium = 0.5, Low = 0.1
+    const pressWeight = press === "High" ? 1.0 : press === "Medium" ? 0.5 : 0.1;
+    const residualStability = Math.max(0, Number((baseline - pressWeight).toFixed(2)));
+    
+    // Fragility logic: baseline <= 2 with High pressure OR stability < 1.0
+    const isFragile = (baseline <= 2 && press === "High") || residualStability < 1.0;
+    const status: ImpactStatus = isFragile ? "Fragile" : press === "High" ? "Stressed" : "Stable";
+
+    if (baseline >= 3) strengths.push(`${d.label} (score ${baseline}/4)`);
+    if (isFragile) vulnerabilities.push(`${d.label} (Fragile under scenario)`);
+    else if (baseline <= 1) vulnerabilities.push(`${d.label} (Low baseline)`);
+
+    return {
+      key: d.key,
+      label: d.label,
+      baseline,
+      pressure: press,
+      residualStability,
+      status,
+      isFragile,
+    };
+  });
+
+  // Linear Resilience Score (average of residual stabilities normalized to 0-100)
+  const totalStability = domainImpacts.reduce((acc, d) => acc + d.residualStability, 0);
+  const maxPossibleStability = DOMAINS.length * 4;
+  const resilienceScore = Math.round((totalStability / maxPossibleStability) * 100);
 
   if (averageScore >= 2.5) stabilisers.push("A generally developing-to-established baseline supports adaptation under change.");
   if ((input.scores.governance ?? 0) >= 3) stabilisers.push("Governance strength improves defensibility when conditions shift.");
@@ -94,20 +135,16 @@ export function runStressTest(input: DiagnosticInput, scenario: Scenario): Stres
 
   const signals: StressSignal[] = [];
 
-  const lowInHighPressure = DOMAINS
-    .filter((d) => pressure[d.key] === "High" && (input.scores[d.key] ?? 0) <= 1)
-    .map((d) => d.key);
-
-  const lowAny = DOMAINS.filter((d) => (input.scores[d.key] ?? 0) <= 1).map((d) => d.key);
+  const lowInHighPressure = domainImpacts.filter((d) => d.isFragile).map((d) => d.key);
 
   if (lowInHighPressure.length > 0) {
     signals.push(
       makeSignal(
         {
           level: "Concern",
-          title: "Low capability in domains under high scenario pressure",
+          title: "Critical fragility detected in pressured domains",
           rationale:
-            "This scenario places high demands on specific capability domains. Where baseline capability is still emerging, work can become fragile: small missteps may create outsized downstream impact.",
+            "This scenario places high demands on specific capability domains. Your baseline capability in these areas suggests high fragility: the system may fail to maintain standards, transparency, or accountability under these conditions.",
           relatedDomains: lowInHighPressure,
           prompts: [
             "Where would this scenario show up first in our workflow?",
@@ -132,7 +169,7 @@ export function runStressTest(input: DiagnosticInput, scenario: Scenario): Stres
           title: "Capability imbalance becomes more visible under stress",
           rationale:
             `Your baseline scores vary widely (spread = ${sp}). Under change scenarios, uneven capability often shows up as “innovation outpacing governance”, or “awareness without reliable practice”.`,
-          relatedDomains: (lowAny.slice(0, 4) as DomainKey[]),
+          relatedDomains: (domainImpacts.filter(d => d.baseline <= 1).map(d => d.key).slice(0, 4) as DomainKey[]),
           prompts: [
             "Which domain is currently carrying the most load — and is that sustainable?",
             "Where are people improvising because the system lacks guidance or structure?",
@@ -154,7 +191,7 @@ export function runStressTest(input: DiagnosticInput, scenario: Scenario): Stres
           title: "Moderate imbalance may create friction under change",
           rationale:
             `Your baseline scores show some variation (spread = ${sp}). This may be manageable now, but scenarios often amplify weak links.`,
-          relatedDomains: (lowAny.slice(0, 3) as DomainKey[]),
+          relatedDomains: (domainImpacts.filter(d => d.baseline <= 1).map(d => d.key).slice(0, 3) as DomainKey[]),
           prompts: [
             "Where does capability feel uneven across teams or modules?",
             "What relies on informal workarounds rather than shared practice?",
@@ -178,7 +215,7 @@ export function runStressTest(input: DiagnosticInput, scenario: Scenario): Stres
         makeSignal(
           {
             level: "Concern",
-            title: "Exposure under high-stakes, public-facing, or sensitive-data conditions",
+            title: "Exposure under high-stakes conditions",
             rationale:
               "You’ve indicated high exposure conditions. When ethics and governance capability are still emerging, the organisation is more exposed to harm, reputational risk, and contested decisions — especially under change.",
             relatedDomains: ["ethics", "governance"],
@@ -285,6 +322,8 @@ export function runStressTest(input: DiagnosticInput, scenario: Scenario): Stres
     scenario,
     pressure,
     overallStress,
+    resilienceScore,
+    domainImpacts,
     summary: {
       strengths: strengths.slice(0, 3),
       vulnerabilities: vulnerabilities.slice(0, 3),

@@ -2,6 +2,25 @@
 
 A lightweight, browser-based exploratory tool for examining how a current AI capability profile may hold up under plausible change scenarios, using the **CloudPedagogy AI Capability Framework**.
 
+## 🔗 Role in the CloudPedagogy Ecosystem
+
+**Phase:** Phase 3 — Capability System
+
+**Role:**
+Pressure-tests organizational AI capability by modeling resilience and fragility under specific high-risk or disruptive scenarios.
+
+**Upstream Inputs:**
+Diagnostic risk profiles and priority gaps from the **Capability Gaps & Risk** tool.
+
+**Downstream Outputs:**
+Provides strategic foresight and mitigation signals used for institutional risk registers and capability building plans.
+
+**Does NOT:**
+- Provide baseline capability measurements (this is for the Assessment tool).
+- Calculate historical trends (this is for the Dashboard).
+
+For a full system overview, see: [SYSTEM_OVERVIEW.md](../SYSTEM_OVERVIEW.md)
+
 The Scenario Stress-Test helps teams surface tensions, fragilities, and pressure points that may emerge when AI use is stressed by rapid change, disruption, or increased scrutiny. It is designed to support **strategic discussion, foresight, and judgement** — not prediction or decision-making.
 
 This tool is part of the **CloudPedagogy AI Capability Tools** suite.

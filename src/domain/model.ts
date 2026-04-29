@@ -66,6 +66,10 @@ export type DiagnosticInput = {
     vendorReliance: boolean; // heavy reliance on one platform or tool chain
     unclearOwnership: boolean; // unclear accountability/role responsibility
   };
+
+  // Standardised capability and governance fields
+  capabilityNotes?: string;
+  governanceNotes?: string;
 };
 
 export const clampScore = (n: number) => Math.max(0, Math.min(4, n));

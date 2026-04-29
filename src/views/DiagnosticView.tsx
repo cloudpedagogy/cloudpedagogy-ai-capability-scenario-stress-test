@@ -53,6 +53,10 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
   const [scenarioId, setScenarioId] = useState<string>(SCENARIOS[0]?.id ?? "");
   const selectedScenario = useMemo(() => getScenarioById(scenarioId), [scenarioId]);
 
+  const [capabilityNotes, setCapabilityNotes] = useState<string>("");
+  const [governanceNotes, setGovernanceNotes] = useState<string>("");
+  const [notesExpanded, setNotesExpanded] = useState(false);
+
   const [result, setResult] = useState<StressResult | null>(null);
 
   function setScore(key: DomainKey, value: number) {
@@ -74,6 +78,8 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
       scores,
       signals,
       coverage: coverageEnabled ? coverage : undefined,
+      capabilityNotes,
+      governanceNotes,
     };
   }
 
@@ -112,6 +118,8 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
             unclearOwnership: !!json.context_flags.unclear_ownership,
           });
         }
+        if (json.capabilityNotes) setCapabilityNotes(json.capabilityNotes);
+        if (json.governanceNotes) setGovernanceNotes(json.governanceNotes);
       } catch (err) {
         console.error("Failed to parse JSON file:", err);
         alert("Failed to load JSON file.");
@@ -330,6 +338,41 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
         <button className="btn btn--primary" onClick={onRun} disabled={!selectedScenario}>
           Run stress-test
         </button>
+      </div>
+
+      {/* Lightweight capability and governance layer */}
+      {/* Optional, non-blocking, and does not alter core workflow */}
+      <div style={{ marginTop: "40px", borderTop: "1px solid var(--line)", paddingTop: "20px" }}>
+        <button 
+          className="btn btn--small" 
+          onClick={() => setNotesExpanded(!notesExpanded)}
+          style={{ marginBottom: "12px", background: "none", border: "1px solid var(--line)", color: "var(--secondary)" }}
+        >
+          {notesExpanded ? "− Hide" : "+ Add"} Capability & Governance Notes (Optional)
+        </button>
+
+        {notesExpanded && (
+          <div className="stack" style={{ gap: "16px", marginTop: "12px" }}>
+            <div className="field">
+              <div className="field__label" style={{ fontSize: "0.8rem", color: "var(--secondary)" }}>Capability Notes</div>
+              <textarea 
+                value={capabilityNotes}
+                onChange={(e) => setCapabilityNotes(e.target.value)}
+                placeholder="How is AI capability developed through this work?"
+                style={{ minHeight: "80px", fontSize: "0.9rem", width: "100%", padding: "8px", border: "1px solid var(--line)", borderRadius: "4px" }}
+              />
+            </div>
+            <div className="field">
+              <div className="field__label" style={{ fontSize: "0.8rem", color: "var(--secondary)" }}>Governance Notes</div>
+              <textarea 
+                value={governanceNotes}
+                onChange={(e) => setGovernanceNotes(e.target.value)}
+                placeholder="Assumptions, risks, or human review notes..."
+                style={{ minHeight: "80px", fontSize: "0.9rem", width: "100%", padding: "8px", border: "1px solid var(--line)", borderRadius: "4px" }}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

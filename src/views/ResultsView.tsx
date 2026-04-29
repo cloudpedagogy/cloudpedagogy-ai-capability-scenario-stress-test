@@ -78,6 +78,18 @@ function buildExportText(input: DiagnosticInput, result: StressResult, generated
     lines.push("");
   }
 
+  if (input.capabilityNotes) {
+    lines.push("Capability Notes:");
+    lines.push(input.capabilityNotes);
+    lines.push("");
+  }
+
+  if (input.governanceNotes) {
+    lines.push("Governance Notes:");
+    lines.push(input.governanceNotes);
+    lines.push("");
+  }
+
   lines.push("Stress signals (for discussion):");
   result.signals.forEach((sig, idx) => {
     lines.push("");
@@ -354,6 +366,25 @@ export default function ResultsView(props: {
           })}
         </div>
       </Card>
+
+      {(input.capabilityNotes || input.governanceNotes) && (
+        <Card title="Capability & Governance Notes">
+          <div className="stack" style={{ gap: "20px" }}>
+            {input.capabilityNotes && (
+              <div>
+                <div className="kicker">Capability Development</div>
+                <div className="secondary" style={{ whiteSpace: "pre-wrap", fontSize: "0.95rem" }}>{input.capabilityNotes}</div>
+              </div>
+            )}
+            {input.governanceNotes && (
+              <div>
+                <div className="kicker">Governance & Oversight</div>
+                <div className="secondary" style={{ whiteSpace: "pre-wrap", fontSize: "0.95rem" }}>{input.governanceNotes}</div>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
 
       <Card title="Export / Report Generation">
         <p className="muted">

@@ -53,3 +53,12 @@ Identifies *dynamic* failure modes—not just what is "weak," but what is "fragi
 
 ## 15. Anything Unclear or Inferred from Repo Contents
 The scenarios are listed as predefined, but the repo structure suggests an intended extension point for custom institutional stress-test logic.
+
+## 16. Capability and Governance Alignment
+
+This tool is aligned with the CloudPedagogy Capability and Governance standard.
+
+- **Capability**: The tool supports development of practical AI capability through structured interaction and workflow use.
+- **Governance**: The tool includes lightweight, optional fields that make assumptions, risks, and decisions visible and reviewable.
+
+This alignment ensures the tool supports both effective use of AI and responsible, accountable practice.

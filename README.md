@@ -19,7 +19,6 @@ Provides strategic foresight and mitigation signals used for institutional risk 
 - Provide baseline capability measurements (this is for the Assessment tool).
 - Calculate historical trends (this is for the Dashboard).
 
-For a full system overview, see: [SYSTEM_OVERVIEW.md](../SYSTEM_OVERVIEW.md)
 
 The Scenario Stress-Test helps teams surface tensions, fragilities, and pressure points that may emerge when AI use is stressed by rapid change, disruption, or increased scrutiny. It is designed to support **strategic discussion, foresight, and judgement** — not prediction or decision-making.
 
@@ -238,5 +237,15 @@ CloudPedagogy frameworks and related materials are licensed separately and are n
 
 CloudPedagogy develops open, governance-credible resources for building confident, responsible AI capability across education, research, and public service.
 
-- Website: https://www.cloudpedagogy.com/
 - Framework: https://github.com/cloudpedagogy/cloudpedagogy-ai-capability-framework
+
+---
+
+## Capability and Governance
+
+This tool supports both AI capability development and lightweight governance.
+
+- **Capability** is developed through structured interaction with real workflows and scenario-based stress testing.
+- **Governance** is supported through optional fields that make assumptions, risks, and decisions visible.
+
+All governance inputs are optional and designed to support — not constrain — professional judgement.

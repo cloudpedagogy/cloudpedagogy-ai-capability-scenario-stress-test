@@ -12,7 +12,9 @@ export function generateStressReportJson(input: DiagnosticInput, result: StressR
       context: input.contextNotes,
       timestamp: new Date().toISOString(),
       scenario: result.scenario.title,
-      framework: "CloudPedagogy AI Capability Framework (2026 Edition)"
+      framework: "CloudPedagogy AI Capability Framework (2026 Edition)",
+      capabilityNotes: input.capabilityNotes,
+      governanceNotes: input.governanceNotes
     },
     metrics: {
       resilience_score: result.resilienceScore,
@@ -58,6 +60,20 @@ export function generateStressReportMarkdown(input: DiagnosticInput, result: Str
   lines.push(`- **Overall Stress Profile:** ${result.overallStress}`);
   lines.push(`- **Baseline average:** ${result.averageScore}/4 (${result.band})`);
   lines.push("");
+
+  if (input.capabilityNotes || input.governanceNotes) {
+    lines.push("## Capability & Governance");
+    if (input.capabilityNotes) {
+      lines.push("### Capability Notes");
+      lines.push(input.capabilityNotes);
+      lines.push("");
+    }
+    if (input.governanceNotes) {
+      lines.push("### Governance Notes");
+      lines.push(input.governanceNotes);
+      lines.push("");
+    }
+  }
 
   lines.push("## Domain Impact Matrix");
   lines.push("| Domain | Baseline | Pressure | Stability | Status |");

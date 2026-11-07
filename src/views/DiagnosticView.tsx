@@ -5,6 +5,7 @@ import { DOMAINS } from "../domain/model";
 import ResultsView from "./ResultsView";
 import { SCENARIOS, getScenarioById } from "../domain/scenarios";
 import { runStressTest, type StressResult } from "../engine/stressAnalysis";
+import { validateDiagnosticJson } from "../engine/importDiagnostic";
 
 type Stage = "input" | "results";
 
@@ -99,30 +100,35 @@ export default function DiagnosticView(props: { onRestart: () => void }) {
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const json = JSON.parse(event.target?.result as string);
-        if (json.metadata?.organisation) setOrgName(json.metadata.organisation);
-        if (json.metadata?.context) setContextNotes(json.metadata.context);
-        if (json.capabilities?.scores) {
-          const newScores = { ...scores };
-          Object.keys(json.capabilities.scores).forEach((k) => {
-            if (k in newScores) newScores[k as DomainKey] = json.capabilities.scores[k];
-          });
-          setScores(newScores);
+        const text = event.target?.result;
+        if (typeof text !== "string") {
+          alert("Failed to read file contents.");
+          return;
         }
-        if (json.context_flags) {
-          setSignals({
-            highStakesUse: !!json.context_flags.high_stakes_use,
-            publicFacing: !!json.context_flags.public_facing,
-            sensitiveData: !!json.context_flags.sensitive_data,
-            vendorReliance: !!json.context_flags.vendor_reliance,
-            unclearOwnership: !!json.context_flags.unclear_ownership,
-          });
+
+        const validation = validateDiagnosticJson(text);
+        if (!validation.success) {
+          console.error("Diagnostic import validation failed:", validation.error);
+          alert(`Failed to load diagnostic file: ${validation.error}`);
+          return;
         }
-        if (json.capabilityNotes) setCapabilityNotes(json.capabilityNotes);
-        if (json.governanceNotes) setGovernanceNotes(json.governanceNotes);
+
+        const { data } = validation;
+        if (data.orgName !== undefined) setOrgName(data.orgName);
+        if (data.contextNotes !== undefined) setContextNotes(data.contextNotes);
+        setScores(data.scores);
+        if (data.signals) {
+          setSignals(data.signals);
+        }
+        if (data.capabilityNotes !== undefined) setCapabilityNotes(data.capabilityNotes);
+        if (data.governanceNotes !== undefined) setGovernanceNotes(data.governanceNotes);
       } catch (err) {
         console.error("Failed to parse JSON file:", err);
         alert("Failed to load JSON file.");
+      } finally {
+        if (e.target) {
+          e.target.value = "";
+        }
       }
     };
     reader.readAsText(file);

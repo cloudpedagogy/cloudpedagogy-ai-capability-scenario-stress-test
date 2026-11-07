@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Card from "../components/Card";
 import DomainBars from "../components/DomainBars";
 import SignalBadge from "../components/SignalBadge";
@@ -118,16 +118,24 @@ export default function ResultsView(props: {
   const { input, result } = props;
 
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">("idle");
-  const [openWhy, setOpenWhy] = useState<Record<string, boolean>>({});
+  const [prevResult, setPrevResult] = useState(result);
+  const [openWhy, setOpenWhy] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    for (const sig of result.signals) {
+      if (sig.level === "Concern") initial[sig.id] = true;
+    }
+    return initial;
+  });
   const [generatedAt] = useState<string>(() => nowTimestampUTC());
 
-  useEffect(() => {
+  if (result !== prevResult) {
+    setPrevResult(result);
     const initial: Record<string, boolean> = {};
     for (const sig of result.signals) {
       if (sig.level === "Concern") initial[sig.id] = true;
     }
     setOpenWhy(initial);
-  }, [result]);
+  }
 
   const exportText = useMemo(() => buildExportText(input, result, generatedAt), [input, result, generatedAt]);
 
